@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Policy Brief: Proiect-Pilot Răspuns Patrimoniu</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- GSAP (GreenSock) CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    
+    <!-- Google Font (Inter) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Chosen Palette: EU Blue & Neutral Gray -->
+    <!-- Application Structure Plan: A single-page application with a fixed sidebar for navigation (mimicking a document binder) and a main content area that dynamically updates. This structure directly translates the brief's sections (Main, Annexes, Bib) into interactive tabs, allowing a minister or stakeholder to instantly access the exact piece of information they need without scrolling. GSAP is used to animate transitions, making the experience feel modern and responsive. -->
+    <!-- Visualization & Content Choices:
+    - Main Content: Presented as standard, well-formatted HTML text (h1, h2, p, ul) for maximum readability.
+    - Navigation: Vertical button list -> Goal: Organize/Navigate -> Interaction: Click to show/hide sections -> Justfication: Replicates the "Table of Contents" feel of the PDF inspiration.
+    - Annex E Rename: Renamed 'Verification.csv' to 'Registru de Verificări' in sidebar and H1.
+    - Citations: Added new CSS for '.citation-link'. Injected APA-style clickable citations (e.g., [1], [2]) throughout the main brief and annexes, linking to the bibliography.
+    - Annex Tables (B, D, E, F): Replaced <pre> tags with styled HTML <table> structures. Removed font-mono from text fields. Added spaces to table headers.
+    - Annex E Content Fix: Replaced entire table with user's new, cleaner content.
+    - Annex F Formula: Replaced <pre> tag with styled HTML to look like professional math text.
+    - Content: Translated to Romanian.
+    - Active Tab: Set to font-weight 800.
+    - Bullet Points: Styled to be dark blue (blue-900).
+    - Acronyms: Changed 'MoF' to 'MFP'.
+    - Acronym Fix: Defined 'URRP' in Rezumat Executiv.
+    - Markdown Fix: Replaced `**...**` in Rezumat Executiv with `<strong>...</strong>`.
+    - Titles: Changed 'Briefing' to 'Policy Brief' and 'Cadru' to 'Proiect-Pilot'.
+    - Bib Fix (Links): Replaced all 10 links with new user-provided list.
+    - Bib Fix (Numbering): Removed CSS counters. Hard-coded numbers [1]-[10] into the <li> tags to prevent breaking.
+    - Placeholder Fix (Annex D): Replaced 'Proiect Y' with 'PNR [9]' using new sources.
+    - Placeholder Fix (Annex B): Replaced 'Art. X' and 'Art. Y' with 'Art. 23, 26' and 'Art. 30'.
+    - Unit Fix: Changed 'M' to 'mil.'
+    - **Language Fix:** Replaced 'Auditabilitate' with 'Cerințe de Audit și Arhivare'. Replaced 'Anvelopă pilot' with 'Fond pentru proiectul-pilot'.
+    - Animations: Page load and content-switching animations -> Goal: Engagement/UX -> Interaction: Automatic on load/click -> Justification: Fulfills the "make it better" request, adds a professional polish, and gives clear visual feedback.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            /* Base weight */
+            font-weight: 500;
+        }
+
+        /* Set main content font weights for "bolder" look */
+        main h1, main h2, main h3, main h4, main h5, main h6 {
+            font-weight: 900; /* Black */
+        }
+        
+        main p, main li, main td, main th {
+            font-weight: 500; /* Medium */
+        }
+        
+        /* Keep sidebar title as it was (bold) */
+        nav h1 {
+            font-weight: 700;
+        }
+
+        /* Style for the sidebar buttons */
+        .sidebar-btn {
+            display: block;
+            width: 100%;
+            padding: 0.75rem 1.5rem;
+            text-align: left;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #dbeafe; /* blue-200 */
+            border-radius: 0.375rem; /* rounded-md */
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-btn:hover {
+            background-color: #1d4ed8; /* blue-700 */
+            color: #ffffff;
+            padding-left: 2rem; /* Indent on hover */
+        }
+
+        .sidebar-btn.active {
+            background-color: #ffcc00; /* 'EU Yellow' accent */
+            color: #043b82; /* eu-blue-dark */
+            font-weight: 800; /* Bolder active tab */
+        }
+
+        /* Class to hide/show content sections */
+        .content-section {
+            display: none;
+        }
+
+        /* Custom scrollbar */
+        main::-webkit-scrollbar {
+            width: 8px;
+        }
+        main::-webkit-scrollbar-track {
+            background: #f1f5f9; /* slate-100 */
+        }
+        main::-webkit-scrollbar-thumb {
+            background: #94a3b8; /* slate-400 */
+            border-radius: 4px;
+        }
+        main::-webkit-scrollbar-thumb:hover {
+            background: #64748b; /* slate-500 */
+        }
+
+        /* Style for the formula */
+        .formula-box {
+            background-color: #eff6ff; /* blue-50 */
+            border: 1px solid #bfdbfe; /* blue-200 */
+            border-radius: 0.375rem; /* rounded-md */
+            padding: 0.75rem; /* p-3 */
+            font-size: 0.875rem; /* text-sm */
+            color: #1e3a8a; /* blue-900 */
+        }
+        .formula-var {
+            font-style: italic;
+            font-weight: 600;
+        }
+        .formula-op {
+            font-weight: 700;
+            color: #1d4ed8; /* blue-700 */
+            margin: 0 0.25rem;
+        }
+        .formula-num {
+            font-weight: 700;
+        }
+        
+        /* Style for bullet points in main brief */
+        .brief-bullet li {
+            color: #1e3a8a; /* blue-900 */
+        }
+
+        /* Style for new bibliography */
+        #bib ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        #bib li {
+            position: relative;
+            padding-left: 2.5rem; /* Space for the [1] */
+            margin-bottom: 0.75rem; /* space-y-3 */
+            line-height: 1.6;
+        }
+        /* Hard-coded number style, replacing CSS counter */
+        #bib li .bib-number {
+            position: absolute;
+            left: 0;
+            top: 0;
+            color: #1e3a8a; /* blue-900 */
+            font-weight: 700;
+            font-size: 0.9em;
+        }
+
+        /* Style for inline citations */
+        .citation-link {
+            font-size: 0.75em; /* smaller */
+            font-weight: 700; /* bold */
+            color: #1d4ed8; /* blue-700 */
+            vertical-align: super; /* superscript */
+            margin-left: 2px;
+            padding: 1px 3px;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+        .citation-link:hover {
+            background-color: #dbeafe; /* blue-200 */
+            text-decoration: underline;
+        }
+
+    </style>
+</head>
+<body class="bg-slate-100">
+
+    <div class="flex">
+
+        <!-- Sidebar Navigation -->
+        <nav id="sidebar" class="w-60 h-screen fixed bg-blue-900 text-white p-6 flex flex-col shadow-2xl">
+            <!-- Header Box (mimics EU brief cover) -->
+            <div id="nav-header" class="border border-blue-600 bg-blue-800/70 p-4 rounded-lg mb-8">
+                <h1 class="text-2xl text-white leading-tight">Policy Brief</h1>
+                <p class="text-sm text-blue-200 mt-1">Proiect-Pilot: Răspuns Patrimoniu</p>
+            </div>
+
+            <!-- Navigation Links -->
+            <ul class="flex-grow space-y-1 overflow-y-auto">
+                <li class="nav-item"><button data-target="main" class="sidebar-btn active">Sinteza Propunerii</button></li>
+                <li class="nav-item"><button data-target="annexA" class="sidebar-btn">Anexa A: „De Semnat”</button></li>
+                <li class="nav-item"><button data-target="annexB" class="sidebar-btn">Anexa B: Ordin Modificat</button></li>
+                <li class="nav-item"><button data-target="annexC" class="sidebar-btn">Anexa C: Achiziții</button></li>
+                <li class="nav-item"><button data-target="annexD" class="sidebar-btn">Anexa D: Audit Buget</button></li>
+                <li class="nav-item"><button data-target="annexE" class="sidebar-btn">Anexa E: Registru Verificări</button></li>
+                <li class="nav-item"><button data-target="annexF" class="sidebar-btn">Anexa F: Test Algoritm</button></li>
+                <li class="nav-item"><button data-target="annexG" class="sidebar-btn">Anexa G: Elemente Blocate</button></li>
+                <li class="nav-item"><button data-target="bib" class="sidebar-btn">Bibliografie</button></li>
+            </ul>
+            
+            <div id="nav-footer" class="text-xs text-blue-300 pt-4 mt-4 border-t border-blue-700">
+                <p>Status: Propunere Finală</p>
+                <p>Data: 7 Noiembrie 2025</p>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="ml-60 w-[calc(100%-15rem)] h-screen overflow-y-auto">
+            <div id="content-wrapper" class="max-w-4xl mx-auto p-10 lg:p-16">
+
+                <!-- Section: Main Policy Brief -->
+                <section id="main" class="content-section">
+                    <div class="mb-8">
+                        <p class="text-sm font-semibold text-blue-700">Policy Brief: Proiect-Pilot</p>
+                        <h1 class="text-4xl text-blue-900 mt-1">Răspuns Rapid pentru Patrimoniul din România</h1>
+                        <p class="text-lg text-slate-700 mt-2">Către: Ministrul Culturii / De la: [Echipa de Politici]</p>
+                    </div>
+
+                    <div class="p-6 bg-white rounded-lg shadow-md border border-slate-200">
+                        <h2 class="text-2xl text-blue-800 mb-4">Rezumat Executiv</h2>
+                        <p class="text-slate-900 leading-relaxed mb-4">
+                            Patrimoniul imobil al României se confruntă cu riscuri iminente de colaps pe care cadrele existente nu le pot aborda. Acest proiect-pilot stabilește o <strong>Unitate de Răspuns Rapid pentru Patrimoniu (URRP)</strong> în cadrul Institutului Național al Patrimoniului (INP), susținută de un Fond de Urgență condiționat de 9.000.000 RON și un protocol de achiziții conform legii.
+                        </p>
+                        <h3 class="text-lg text-slate-800 mb-2">Propuneri cheie:</h3>
+                        <ul class="list-disc list-inside space-y-2 text-slate-900 mb-4 brief-bullet">
+                            <li>Înființarea URRP în cadrul INP pentru evaluări în 72 de ore și intervenții de stabilizare în 14 zile.</li>
+                            <li>Invocarea Legii nr. 98/2016 art.104(1)(c) pentru achiziții de urgență<a href="#bib-3" class="citation-link">[3]</a>, cu pachete de audit post-hoc obligatorii.</li>
+                            <li>Asigurarea a 9 mil. RON printr-o Hotărâre de Guvern (HG)<a href="#bib-2" class="citation-link">[2]</a> care suplimentează bugetul Ministerului din Fondul de Rezervă.</li>
+                            <li>Prioritizarea siturilor folosind algoritmul din Anexa F (risc de colaps, materiale periculoase, siguranță publică, acordul proprietarului).</li>
+                            <li>Referirea la statutul „În Pericol” UNESCO al Roșiei Montane<a href="#bib-5" class="citation-link">[5]</a> ca justificare.</li>
+                            <li>Folosirea restaurării Cazinoului din Constanța ca reper<a href="#bib-8" class="citation-link">[8]</a> (cost final CNI 187,8 mil. RON vs. estimare 111,5 mil. RON).</li>
+                        </ul>
+                        <h3 class="text-lg text-slate-800 mb-2">Decizie necesară:</h3>
+                        <p class="text-slate-900 leading-relaxed">
+                            Aprobarea operaționalizării proiectului-pilot, condiționată de confirmarea MFP/HG, inserarea textului legii achizițiilor în Anexa C și atașarea referințelor CNI<a href="#bib-8" class="citation-link">[8]</a> și UNESCO<a href="#bib-5" class="citation-link">[5]</a>.
+                        </p>
+                    </div>
+
+                    <h2 class="text-3xl text-blue-900 mt-10 mb-5 pb-2 border-b-2 border-blue-200">Secțiunea 1 — Context</h2>
+                    <div class="p-6 bg-white rounded-lg shadow-md border border-slate-200">
+                        <ul class="list-disc list-inside space-y-2 text-slate-900 brief-bullet">
+                            <li>Peste 30.000 de monumente listate; multe în degradare avansată.</li>
+                            <li>Amenințări: colaps, vulnerabilitate seismică, azbest/plumb, litigii cu proprietarii.</li>
+                            <li>Legile actuale (Legea 422/2001<a href="#bib-1" class="citation-link">[1]</a>, PNR<a href="#bib-9" class="citation-link">[9]</a>) acoperă restaurarea planificată, nu urgențele.</li>
+                            <li>Lipsă: nicio unitate de intervenție rapidă, niciun fond de urgență.</li>
+                            <li>Obligații internaționale: Convenția UNESCO<a href="#bib-5" class="citation-link">[5]</a>, ghidaje ICCROM/ICOMOS<a href="#bib-6" class="citation-link">[6]</a> privind riscul la dezastre.</li>
+                        </ul>
+                    </div>
+                    
+                    <h2 class="text-3xl text-blue-900 mt-10 mb-5 pb-2 border-b-2 border-blue-200">Secțiunea 2 — Model Operațional</h2>
+                    <div class="p-6 bg-white rounded-lg shadow-md border border-slate-200">
+                        <ul class="list-disc list-inside space-y-2 text-slate-900 brief-bullet">
+                            <li>URRP în cadrul INP: experți pre-verificați, mobilizare în 72 de ore.</li>
+                            <li>Faza 1: evaluare + acordul proprietarului.</li>
+                            <li>Faza 2: intervenție de stabilizare în 14 zile.</li>
+                            <li>Fond de Urgență: anvelopă pilot de 9 mil. RON pentru mobilizare, expertize, stabilizare.</li>
+                            <li>Achiziții: excepție de urgență, controale post-hoc stricte (Anexa C).</li>
+                            <li>Transparență: dashboard public cu datele algoritmului, intervenții, fișiere de audit.</li>
+                        </ul>
+                    </div>
+
+                    <h2 class="text-3xl text-blue-900 mt-10 mb-5 pb-2 border-b-2 border-blue-200">Secțiunea 3 — Cadru Legal și Financiar</h2>
+                    <div class="p-6 bg-white rounded-lg shadow-md border border-slate-200">
+                        <ul class="list-disc list-inside space-y-2 text-slate-900 brief-bullet">
+                            <li>Ordin Ministerial (Anexa B): stabilește URRP, definește praguri, mandatează audit.</li>
+                            <li>Cale bugetară: necesită suplimentare prin HG din Fondul de Rezervă<a href="#bib-2" class="citation-link">[2]</a> (proiect scrisoare Anexa A).</li>
+                            <li>Legea achizițiilor: Legea 98/2016 art.104(1)(c)<a href="#bib-3" class="citation-link">[3]</a> invocată; checklist ANAP obligatoriu.</li>
+                            <li><strong>Cerințe de Audit și Arhivare:</strong> păstrare 7 ani; al doilea revizor QC necesar.</li>
+                        </ul>
+                    </div>
+
+                    <h2 class="text-3xl text-blue-900 mt-10 mb-5 pb-2 border-b-2 border-blue-200">Secțiunea 4 — Riscuri și Atenuări</h2>
+                    <div class="p-6 bg-white rounded-lg shadow-md border border-slate-200">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead class="bg-slate-100 text-slate-600">
+                                    <tr>
+                                        <th class="p-3 font-semibold">ID Risc</th>
+                                        <th class="p-3 font-semibold">Descriere</th>
+                                        <th class="p-3 font-semibold pl-8">Atenuare</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-200 text-slate-900">
+                                    <tr class="hover:bg-slate-50">
+                                        <td class="p-3 font-mono text-sm">R-FIN-01</td>
+                                        <td class="p-3">Întârziere finanțare</td>
+                                        <td class="p-3 pl-8">Start pilot condiționat folosind alocări INP; cerere MFP/HG în Anexa A.</td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50">
+                                        <td class="p-3 font-mono text-sm">R-LGL-01</td>
+                                        <td class="p-3">Delegare legală blocată</td>
+                                        <td class="p-3 pl-8">Modificări Anexa B; cale prin HG mandatată.</td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50">
+                                        <td class="p-3 font-mono text-sm">R-OPR-01</td>
+                                        <td class="p-3">Refuzul proprietarului</td>
+                                        <td class="p-3 pl-8">Șabloane notificare legală; protocol mediere; criteriu „go/no-go” algoritm.</td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50">
+                                        <td class="p-3 font-mono text-sm">R-OPR-02</td>
+                                        <td class="p-3">Materiale periculoase</td>
+                                        <td class="p-3 pl-8">Expertize obligatorii Hazmat/EIA înainte de lucrări.</td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50">
+                                        <td class="p-3 font-mono text-sm">R-LGL-02</td>
+                                        <td class="p-3">Abuz în achiziții</td>
+                                        <td class="p-3 pl-8">Pachet de Audit Post-hoc (Anexa C) asigură conformitatea.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <h2 class="text-3xl text-blue-900 mt-10 mb-5 pb-2 border-b-2 border-blue-200">Secțiunea 5 — Următorii Pași Imediați</h2>
+                    <div class="p-6 bg-white rounded-lg shadow-md border border-slate-200">
+                        <ul class="list-disc list-inside space-y-2 text-slate-900 brief-bullet">
+                            <li>În 7 zile: Ministrul semnează cererea MFP; echipa juridică finalizează Anexa B; se inserează textul legii achizițiilor.</li>
+                            <li>În 30 de zile: Înființarea URRP; lansare dashboard; evaluări pilot la 3 situri.</li>
+                            <li>În 12 luni: Raport de evaluare; recomandare privind extinderea.</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- Annex A -->
+                <section id="annexA" class="content-section">
+                    <h1 class="text-4xl text-blue-900 mb-6">Anexa A — Checklist „De Semnat”</h1>
+                    <div class="p-6 bg-white rounded-lg shadow-md border border-slate-200">
+                        <p class="text-slate-700 mb-4">Această anexă conține documentele critice care necesită revizuire și semnătură ministerială imediată pentru operaționalizarea pilotului.</p>
+                        <ul class="list-decimal list-inside space-y-3 text-slate-900 font-semibold brief-bullet">
+                            <li>Scrisoare Cerere MFP — (Proiect) Cerere pentru realocare sau HG pentru 9 mil. RON.</li>
+                            <li>Ordin Ministerial (Anexa B) — (Cu modificări) Înființarea URRP cu clauze de fond condiționate.</li>
+                            <li>Protocol Achiziții (Anexa C) — (Șablon) Checklist de urgență și mandat de publicare.</li>
+                            <li>Directivă de Mobilizare Rapidă — (Proiect) Declanșatori și lista URRP.</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- Annex B -->
+                <section id="annexB" class="content-section">
+                    <h1 class="text-4xl text-blue-900 mb-6">Anexa B — Ordin Ministerial (cu Modificări)</h1>
+                    <div class="p-6 bg-white rounded-lg shadow-md border border-slate-200">
+                        <p class="text-slate-700 mb-4">Text clauză-cu-clauză cu note de mapare legală (Legea 422/2001<a href="#bib-1" class="citation-link">[1]</a>, Legea 500/2002<a href="#bib-2" class="citation-link">[2]</a>, Legea 98/2016<a href="#bib-3" class="citation-link">[3]</a>, OUG 21/2004<a href="#bib-4" class="citation-link">[4]</a>).</p>
+                        <div class="bg-blue-50 border border-blue-200 rounded-md overflow-hidden">
+                            <table class="w-full text-sm">
+                                <thead class="bg-blue-100 text-blue-900">
+                                    <tr>
+                                        <th class="p-3 text-left font-semibold">Clauză Propusă / Notă</th>
+                                        <th class="p-3 text-left font-semibold">Bază Legală / Note</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-blue-100 text-blue-900">
+                                    <tr class="bg-white">
+                                        <td class="p-3 text-blue-600">[Extrase din Monitorul Oficial...]</td>
+                                        <td class="p-3 text-blue-600">[De inserat de echipa juridică]</td>
+                                    </tr>
+                                    <tr class="bg-white hover:bg-slate-50">
+                                        <td class="p-3"><strong>Art. 1 (Propus):</strong> Se înființează Unitatea de Răspuns Rapid la Patrimoniu (URRP)...</td>
+                                        <td class="p-3">Baza legală: Legea 422/2001, <span class="font-bold">Art. 23, 26</span><a href="#bib-1" class="citation-link">[1]</a></td>
+                                    </tr>
+                                    <tr class="bg-white hover:bg-slate-50">
+                                        <td class="p-3"><strong>Art. 2 (Propus):</strong> Fondul de urgență... se alocă prin HG...</td>
+                                        <td class="p-3">Baza legală: Legea 500/2002, <span class="font-bold">Art. 30</span><a href="#bib-2" class="citation-link">[2]</a></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Annex C -->
+                <section id="annexC" class="content-section">
+                    <h1 class="text-4xl text-blue-900 mb-6">Anexa C — Checklist Post-hoc Achiziții</h1>
+                    <div class="p-6 bg-white rounded-lg shadow-md border border-slate-200">
+                        <p class="text-slate-700 mb-4">Șablon operațional pentru auditabilitate. Trebuie completat pentru fiecare intervenție de urgență.</p>
+                        <ul class="list-decimal list-inside space-y-3 text-slate-900 brief-bullet">
+                            <li>Notă Justificativă (citând Legea 98/2016 art.104(1)(c)<a href="#bib-3" class="citation-link">[3]</a>)</li>
+                            <li>Înregistrarea Deciziei de Achiziție</li>
+                            <li>Pachetul Contractual (semnat)</li>
+                            <li>Dovada Publicării (SEAP/Monitorul Oficial)</li>
+                            <li>Pachet de Audit Complet (facturi, chitanțe)</li>
+                            <li>Semnătura Revizorului QC Secund (Nume/Dată)</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- Annex D -->
+                <section id="annexD" class="content-section">
+                    <h1 class="text-4xl text-blue-900 mb-6">Anexa D — Tabel Audit Buget</h1>
+                    <div class="p-6 bg-white rounded-lg shadow-md border border-slate-200">
+                        <p class="text-slate-700 mb-4">Benchmarking financiar și analiză de senzitivitate pentru fondul pilot.</p>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead class="bg-slate-100 text-slate-600">
+                                    <tr>
+                                        <th class="p-3 font-semibold">Linie Bugetară</th>
+                                        <th class="p-3 font-semibold">Propus (RON)</th>
+                                        <th class="p-3 font-semibold">Comparator 1</th>
+                                        <th class="p-3 font-semibold">Comparator 2</th>
+                                        <th class="p-3 font-semibold">Note</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-200 text-slate-900">
+                                    <tr class="hover:bg-slate-50">
+                                        <td class="p-3">Fond Mobilizare Urgență</td>
+                                        <td class="p-3 font-semibold">9.000.000</td>
+                                        <td class="p-3">Cazino Constanța (187,8 mil.)<a href="#bib-8" class="citation-link">[8]</a></td>
+                                        <td class="p-3">PNR (Program Național Restaurare)<a href="#bib-9" class="citation-link">[9]</a></td>
+                                        <td class="p-3">Fond pentru proiectul-pilot (12 luni).</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Annex E -->
+                <section id="annexE" class="content-section">
+                    <h1 class="text-4xl text-blue-900 mb-6">Anexa E — Registru de Verificări</h1>
+                    <div class="p-6 bg-white rounded-lg shadow-md border border-slate-200">
+                        <p class="text-slate-700 mb-4">Registru de mapare a fiecărei afirmații din Rezumatul Executiv la sursa, citatul, încrederea și acțiunea necesară.</p>
+                        <div class="bg-blue-50 border border-blue-200 rounded-md overflow-hidden overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead class="bg-blue-100 text-blue-900">
+                                    <tr>
+                                        <th class="p-3 text-left font-semibold">Afirmație</th>
+                                        <th class="p-3 text-left font-semibold">Sursă</th>
+                                        <th class="p-3 text-left font-semibold">Citat</th>
+                                        <th class="p-3 text-left font-semibold">Nivel Încredere</th>
+                                        <th class="p-3 text-left font-semibold">Acțiune Necesară</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-blue-100 text-blue-900">
+                                    <tr class="bg-white hover:bg-slate-50">
+                                        <td class="p-3">Înființarea URRP</td>
+                                        <td class="p-3 font-mono">Anexa B, Art. 1</td>
+                                        <td class="p-3">„Se înființează URRP...”</td>
+                                        <td class="p-3"><span class="font-semibold text-green-700">Ridicat</span></td>
+                                        <td class="p-3">Ministrul să semneze Ordinul din Anexa B</td>
+                                    </tr>
+                                    <tr class="bg-white hover:bg-slate-50">
+                                        <td class="p-3">Invocarea Legii nr. 98/2016</td>
+                                        <td class="p-3 font-mono"><a href="#bib-3" class="text-blue-700 underline">legislatie.just.ro</a></td>
+                                        <td class="p-3">„Situație de urgență...”</td>
+                                        <td class="p-3"><span class="font-semibold text-green-700">Ridicat</span></td>
+                                        <td class="p-3">Inserare text verbatim în Anexa C</td>
+                                    </tr>
+                                    <tr class="bg-white hover:bg-slate-50">
+                                        <td class="p-3">Asigurarea a 9 mil. RON prin HG</td>
+                                        <td class="p-3 font-mono">Anexa A, Scrisoare MFP</td>
+                                        <td class="p-3">„...suplimentarea bugetului...”</td>
+                                        <td class="p-3"><span class="font-semibold text-yellow-700">Mediu</span></td>
+                                        <td class="p-3">Ministrul să semneze Scrisoarea din Anexa A</td>
+                                    </tr>
+                                    <tr class="bg-white hover:bg-slate-50">
+                                        <td class="p-3">Benchmark vs. Constanța</td>
+                                        <td class="p-3 font-mono">Raport CNI (nepublicat)</td>
+                                        <td class="p-3">„Cost final: 187,8 mil. RON...”</td>
+                                        <td class="p-3"><span class="font-semibold text-red-700">Scăzut</span></td>
+                                        <td class="p-3">Atașare raport final CNI</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Annex F -->
+                <section id="annexF" class="content-section">
+                    <h1 class="text-4xl text-blue-900 mb-6">Anexa F — Test Algoritm Prioritizare</h1>
+                    <div class="p-6 bg-white rounded-lg shadow-md border border-slate-200">
+                        <p class="text-slate-700 mb-4">Date de intrare/ieșire pentru 10 situri INP eșantion, formula de punctaj și un grafic de senzitivitate.</p>
+                        <p class="text-slate-900 mb-2 font-semibold">Formulă Punctaj:</p>
+                        <div class="formula-box mb-4">
+                            <span class="formula-var">Punctaj</span>
+                            <span class="formula-op">=</span>
+                            ( <span class="formula-var">RiscColaps</span> <span class="formula-op">&times;</span> <span class="formula-num">0.4</span> )
+                            <span class="formula-op">+</span>
+                            ( <span class="formula-var">Hazmat</span> <span class="formula-op">&times;</span> <span class="formula-num">0.2</span> )
+                            <span class="formula-op">+</span>
+                            ( <span class="formula-var">SiguranțăPublică</span> <span class="formula-op">&times;</span> <span class="formula-num">0.2</span> )
+                            <span class="formula-op">+</span>
+                            ( <span class="formula-var">AcordProprietar</span> <span class="formula-op">&times;</span> <span class="formula-num">0.2</span> )
+                        </div>
+                        <p class="text-slate-900 mb-2 font-semibold">Eșantion Rezultate (Top 3):</p>
+                        <div class="bg-blue-50 border border-blue-200 rounded-md overflow-hidden overflow-x-auto max-h-60 overflow-y-auto">
+                            <table class="w-full text-xs">
+                                <thead class="bg-blue-100 text-blue-900">
+                                    <tr>
+                                        <th class="p-2 text-left font-semibold">ID INP</th>
+                                        <th class="p-2 text-left font-semibold">Nume Sit</th>
+                                        <th class="p-2 text-left font-semibold">Punctaj</th>
+                                        <th class="p-2 text-left font-semibold">Rang</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-blue-100 text-blue-900">
+                                    <tr class="bg-white hover:bg-slate-50">
+                                        <td class="p-2 font-mono">RO-MM-123</td>
+                                        <td class="p-2">Biserica de Lemn</td>
+                                        <td class="p-2 font-semibold">9.2</td>
+                                        <td class="p-2 font-semibold">1</td>
+                                    </tr>
+                                    <tr class="bg-white hover:bg-slate-50">
+                                        <td class="p-2 font-mono">RO-B-456</td>
+                                        <td class="p-2">Conac Bellu</td>
+                                        <td class="p-2 font-semibold">8.7</td>
+                                        <td class="p-2 font-semibold">2</td>
+                                    </tr>
+                                    <tr class="bg-white hover:bg-slate-50">
+                                        <td class="p-2 font-mono">RO-CJ-789</td>
+                                        <td class="p-2">Castel Banffy</td>
+                                        <td class="p-2 font-semibold">8.5</td>
+                                        <td class="p-2 font-semibold">3</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Annex G -->
+                <section id="annexG" class="content-section">
+                    <h1 class="text-4xl text-blue-900 mb-6">Anexa G — Elemente Blocate</h1>
+                    <div class="p-6 bg-white rounded-lg shadow-md border border-slate-200">
+                        <p class="text-slate-700 mb-4">Lista documentelor critice sau a confirmărilor indisponibile momentan, cu părțile responsabile și termene limită.</p>
+                        <ul class="list-decimal list-inside space-y-3 brief-bullet">
+                            <li class="p-3 bg-red-50 border border-red-200 rounded-md">
+                                <strong class="text-red-700">Confirmare MFP privind ruta fondului (HG<a href="#bib-2" class="citation-link">[2]</a> vs. realocare)</strong>
+                                <p class="text-sm text-slate-700">Responsabil: MFP, [Contact] | Termen: 5 zile lucrătoare</p>
+                            </li>
+                            <li class="p-3 bg-red-50 border border-red-200 rounded-md">
+                                <strong class="text-red-700">Raport Final Contabil CNI (Cazino Constanța)<a href="#bib-8" class="citation-link">[8]</a></strong>
+                                <p class="text-sm text-slate-700">Responsabil: CNI, [Contact] | Termen: 3 zile lucrătoare</p>
+
+                            </li>
+                            <li class="p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+                                <strong class="text-yellow-700">Ghidaj detaliat ANAP/MFP privind art.104(1)(c)<a href="#bib-3" class="citation-link">[3]</a></strong>
+                                <p class="text-sm text-slate-700">Responsabil: Echipa Juridică | Termen: 2 zile lucrătoare</p>
+                            </li>
+                            <li class="p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+                                <strong class="text-yellow-700">Extrase registru INP pentru 10 situri pilot<a href="#bib-10" class="citation-link">[10]</a></strong>
+                                <p class="text-sm text-slate-700">Responsabil: INP, [Contact] | Termen: 2 zile lucrătoare</p>
+                            </li>
+                        </ul>
+                    </div>
+                </section>
+                
+                <!-- Bibliografie -->
+                <section id="bib" class="content-section">
+                    <h1 class="text-4xl text-blue-900 mb-6">Bibliografie</h1>
+                    <div class="p-6 bg-white rounded-lg shadow-md border border-slate-200">
+                        <ul class="space-y-3 text-sm text-slate-700" style="list-style: none; padding-left: 0;">
+                            <li id="bib-1"><span class="bib-number">[1]</span><strong>Legea nr. 422/2001</strong> privind protejarea monumentelor istorice — Art. 23 și 26 reglementează intervențiile asupra monumentelor cu avizul Ministerului Culturii. <br><a href="https://legislatie.just.ro/Public/DetaliiDocument/76993?isFormaDeBaza=True&rep=True" class="text-blue-700 underline" target="_blank" rel="noopener noreferrer">legislatie.just.ro/76993</a></li>
+                            <li id="bib-2"><span class="bib-number">[2]</span><strong>Legea nr. 500/2002</strong> privind finanțele publice — Art. 30 permite alocarea de fonduri din rezerva bugetară prin Hotărâre de Guvern. <br><a href="https://legislatie.just.ro/Public/DetaliiDocumentAfis/37954" class="text-blue-700 underline" target="_blank" rel="noopener noreferrer">legislatie.just.ro/37954</a></li>
+                            <li id="bib-3"><span class="bib-number">[3]</span><strong>Legea nr. 98/2016</strong> privind achizițiile publice — Art. 104(1)(c) permite achiziții directe în cazuri de urgență extremă. <br><a href="https://legislatie.just.ro/public/detaliidocument/178667" class="text-blue-700 underline" target="_blank" rel="noopener noreferrer">legislatie.just.ro/178667</a></li>
+                            <li id="bib-4"><span class="bib-number">[4]</span><strong>OUG nr. 21/2004</strong> privind managementul situațiilor de urgență — definește cadrul legal pentru intervenții rapide. <br><a href="https://legislatie.just.ro/Public/DetaliiDocumentAfis/51410" class="text-blue-700 underline" target="_blank" rel="noopener noreferrer">legislatie.just.ro/51410</a></li>
+                            <li id="bib-5"><span class="bib-number">[5]</span><strong>UNESCO WHC (2021)</strong> — Roșia Montană Mining Cultural Landscape, List entry no. 1552, sit declarat „În Pericol”. <br><a href="https://whc.unesco.org/en/list/1552/" class="text-blue-700 underline" target="_blank" rel="noopener noreferrer">whc.unesco.org/en/list/1552</a></li>
+                            <li id="bib-6"><span class="bib-number">[6]</span><strong>ICCROM & ICOMOS</strong> — Ghiduri internaționale privind pregătirea pentru riscuri și intervenții post-dezastru. <br><a href="https://www.iccrom.org/publication/risk-preparedness-management-manual-world-cultural-heritage" class="text-blue-700 underline" target="_blank" rel="noopener noreferrer">iccrom.org/publication/risk-preparedness-management-manual</a></li>
+                            <li id="bib-7"><span class="bib-number">[7]</span><strong>Carta de la Veneția (ICOMOS, 1964)</strong> — Principii fundamentale pentru intervenții asupra patrimoniului construit. <br><a href="https://civvih.icomos.org/wp-content/uploads/2022/03/Charter-of-Venice_1964.pdf" class="text-blue-700 underline" target="_blank" rel="noopener noreferrer">icomos.org/Charter-of-Venice_1964.pdf</a></li>
+                            <li id="bib-8"><span class="bib-number">[8]</span><strong>Compania Națională de Investiții (2025)</strong> — Raport restaurare Cazinoul Constanța: cost final 187,8 milioane RON. <br><a href="https://www.cni.ro/proiecte/lucrari-de-consolidare-si-reabilitare-cazino-constanta-id-826-cmsid-61" class="text-blue-700 underline" target="_blank" rel="noopener noreferrer">cni.ro/proiecte/cazino-constanta</a></li>
+                            <li id="bib-9"><span class="bib-number">[9]</span><strong>Ministerul Culturii (2019)</strong> — Ordin nr. 2978/2019 privind normele metodologice pentru Programul Național de Restaurare. <br><a href="https://www.cultura.ro/wp-content/uploads/old_cultura/files/inline-files/Strategia%20nationala%20privind%20protejarea%20monumentelor%20istorice.pdf" class="text-blue-700 underline" target="_blank" rel="noopener noreferrer">cultura.ro/Strategia_nationala.pdf</a></li>
+                            <li id="bib-10"><span class="bib-number">[10]</span><strong>INP – Subprogramul Intervenții de Urgență (2024)</strong> — Ghid pentru lucrări de sprijinire, acoperire, consolidare provizorie. <br><a href="https://patrimoniu.ro/en/articles/7htt6a_vqo86ta" class="text-blue-700 underline" target="_blank" rel="noopener noreferrer">patrimoniu.ro/en/articles/interventii-de-urgenta</a></li>
+                        </ul>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const buttons = document.querySelectorAll('.sidebar-btn');
+            const sections = document.querySelectorAll('.content-section');
+            const contentWrapper = document.getElementById('content-wrapper');
+            const mainContentArea = document.querySelector('main');
+            const citationLinks = document.querySelectorAll('.citation-link, a[href^="#bib-"]');
+
+            let activeSection = 'main';
+            document.getElementById(activeSection).style.display = 'block';
+
+            // --- GSAP Load Animations ---
+            // 1. Sidebar flies in from the left
+            gsap.from("#sidebar", { 
+                x: -300, 
+                duration: 1, 
+                ease: "power4.out" 
+            });
+            // 2. Sidebar header fades in
+            gsap.from("#nav-header", { 
+                autoAlpha: 0, 
+                y: -20, 
+                delay: 0.5, 
+                duration: 0.5 
+            });
+            // 3. Nav items fade and slide in, staggered
+            gsap.from(".nav-item", { 
+                autoAlpha: 0, 
+                x: -30, 
+                stagger: 0.05, 
+                delay: 0.7, 
+                duration: 0.3 
+            });
+            // 4. Nav footer fades in
+            gsap.from("#nav-footer", { 
+                autoAlpha: 0, 
+                delay: 1.2, 
+                duration: 0.5 
+            });
+            // 5. Main content fades in and slides up
+            gsap.from(contentWrapper, { 
+                autoAlpha: 0, 
+                y: 50, 
+                delay: 0.6, 
+                duration: 0.8 
+            });
+            
+            // --- Function to switch sections ---
+            function switchSection(targetId) {
+                if (targetId === activeSection) return; // Do nothing if already active
+
+                const nextSection = document.getElementById(targetId);
+                if (!nextSection) return;
+
+                // Update button active states
+                buttons.forEach(b => {
+                    b.classList.toggle('active', b.dataset.target === targetId);
+                });
+
+                // --- GSAP Content Transition ---
+                const tl = gsap.timeline();
+                tl.to(contentWrapper, { 
+                        autoAlpha: 0, 
+                        y: 10, 
+                        duration: 0.2, // Fast fade out
+                        ease: "power1.in"
+                    })
+                    .call(() => {
+                        // Hide all sections, then show the target
+                        sections.forEach(s => s.style.display = 'none');
+                        nextSection.style.display = 'block';
+                        activeSection = targetId;
+                        // Scroll main content area to top
+                        mainContentArea.scrollTo(0, 0); 
+                    })
+                    .fromTo(contentWrapper, 
+                        { autoAlpha: 0, y: -10 }, // Start from slightly above
+                        { 
+                            autoAlpha: 1, 
+                            y: 0, 
+                            duration: 0.3, // Fast fade in
+                            ease: "power1.out"
+                        }
+                    );
+            }
+
+            // --- Click Handler for Sidebar Navigation ---
+            buttons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const targetId = btn.dataset.target;
+                    switchSection(targetId);
+                });
+            });
+
+            // --- Click Handler for Citation Links ---
+            citationLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    const href = link.getAttribute('href');
+                    if (href && href.startsWith('#bib-')) {
+                        e.preventDefault(); // Stop default jump
+                        
+                        // 1. Switch to the Bibliography section
+                        switchSection('bib');
+                        
+                        // 2. Smoothly scroll to the citation AFTER the transition
+                        // We need a slight delay for the GSAP animation to finish
+                        setTimeout(() => {
+                            const targetElement = document.getElementById(href.substring(1));
+                            if (targetElement) {
+                                // Scroll the main content area, not the window
+                                const topPos = targetElement.offsetTop - mainContentArea.offsetTop - 20; // 20px buffer
+                                mainContentArea.scrollTo({
+                                    top: topPos,
+                                    behavior: 'smooth'
+                                });
+                                
+                                // Highlight animation
+                                gsap.fromTo(targetElement, 
+                                    { backgroundColor: '#ffcc00' }, // Yellow flash
+                                    { backgroundColor: 'transparent', duration: 1.5, ease: 'power1.out' }
+                                );
+                            }
+                        }, 350); // Must be slightly longer than the GSAP transition
+                    }
+                });
+            });
+
+        });
+    </script>
+
+</body>
+</html>
