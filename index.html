@@ -24,7 +24,8 @@
     - Annex E Rename: Renamed 'Verification.csv' to 'Registru de Verificări' in sidebar and H1.
     - Citations: Added new CSS for '.citation-link'. Injected APA-style clickable citations (e.g., [1], [2]) throughout the main brief and annexes, linking to the bibliography.
     - Annex Tables (B, D, E, F): Replaced <pre> tags with styled HTML <table> structures. Removed font-mono from text fields. Added spaces to table headers.
-    - Annex E Content Fix: Replaced entire table with user's new, cleaner content.
+    - Annex E Content Fix: Replaced entire table with user's new, cleaner content. Headers, rows, and confidence colors updated.
+    - **Annex E Text Fix:** Replaced unprofessional "(Propunerea ta)" with "(Extras Propunere)" and removed "(Din Bibliografia ta)" from header.
     - Annex F Formula: Replaced <pre> tag with styled HTML to look like professional math text.
     - Content: Translated to Romanian.
     - Active Tab: Set to font-weight 800.
@@ -38,7 +39,7 @@
     - Placeholder Fix (Annex D): Replaced 'Proiect Y' with 'PNR [9]' using new sources.
     - Placeholder Fix (Annex B): Replaced 'Art. X' and 'Art. Y' with 'Art. 23, 26' and 'Art. 30'.
     - Unit Fix: Changed 'M' to 'mil.'
-    - **Language Fix:** Replaced 'Auditabilitate' with 'Cerințe de Audit și Arhivare'. Replaced 'Anvelopă pilot' with 'Fond pentru proiectul-pilot'.
+    - Language Fix: Replaced 'Auditabilitate' with 'Cerințe de Audit și Arhivare'. Replaced 'Anvelopă pilot' with 'Fond pentru proiectul-pilot'.
     - Animations: Page load and content-switching animations -> Goal: Engagement/UX -> Interaction: Automatic on load/click -> Justification: Fulfills the "make it better" request, adds a professional polish, and gives clear visual feedback.
     -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
@@ -431,7 +432,7 @@
                                     <tr>
                                         <th class="p-3 text-left font-semibold">Afirmație</th>
                                         <th class="p-3 text-left font-semibold">Sursă</th>
-                                        <th class="p-3 text-left font-semibold">Citat</th>
+                                        <th class="p-3 text-left font-semibold">Citat (Text Verbatim sau Extras)</th>
                                         <th class="p-3 text-left font-semibold">Nivel Încredere</th>
                                         <th class="p-3 text-left font-semibold">Acțiune Necesară</th>
                                     </tr>
@@ -439,30 +440,30 @@
                                 <tbody class="divide-y divide-blue-100 text-blue-900">
                                     <tr class="bg-white hover:bg-slate-50">
                                         <td class="p-3">Înființarea URRP</td>
-                                        <td class="p-3 font-mono">Anexa B, Art. 1</td>
+                                        <td class="p-3">Anexa B, Art. 1 (Extras Propunere)</td>
                                         <td class="p-3">„Se înființează URRP...”</td>
                                         <td class="p-3"><span class="font-semibold text-green-700">Ridicat</span></td>
                                         <td class="p-3">Ministrul să semneze Ordinul din Anexa B</td>
                                     </tr>
                                     <tr class="bg-white hover:bg-slate-50">
                                         <td class="p-3">Invocarea Legii nr. 98/2016</td>
-                                        <td class="p-3 font-mono"><a href="#bib-3" class="text-blue-700 underline">legislatie.just.ro</a></td>
-                                        <td class="p-3">„Situație de urgență...”</td>
+                                        <td class="p-3">Legea 98/2016 (Bib. 3)</td>
+                                        <td class="p-3">"...din motive de extremă urgență..."</td>
                                         <td class="p-3"><span class="font-semibold text-green-700">Ridicat</span></td>
                                         <td class="p-3">Inserare text verbatim în Anexa C</td>
                                     </tr>
                                     <tr class="bg-white hover:bg-slate-50">
-                                        <td class="p-3">Asigurarea a 9 mil. RON prin HG</td>
-                                        <td class="p-3 font-mono">Anexa A, Scrisoare MFP</td>
-                                        <td class="p-3">„...suplimentarea bugetului...”</td>
+                                        <td class="p-3">Asigurarea a 9 mil. RON</td>
+                                        <td class="p-3">Anexa A, Scrisoare MFP (Extras Propunere)</td>
+                                        <td class="p-3">„...solicităm suplimentarea bugetului...”</td>
                                         <td class="p-3"><span class="font-semibold text-yellow-700">Mediu</span></td>
                                         <td class="p-3">Ministrul să semneze Scrisoarea din Anexa A</td>
                                     </tr>
                                     <tr class="bg-white hover:bg-slate-50">
                                         <td class="p-3">Benchmark vs. Constanța</td>
-                                        <td class="p-3 font-mono">Raport CNI (nepublicat)</td>
-                                        <td class="p-3">„Cost final: 187,8 mil. RON...”</td>
-                                        <td class="p-3"><span class="font-semibold text-red-700">Scăzut</span></td>
+                                        <td class="p-3">Raport CNI (Bib. 8)</td>
+                                        <td class="p-3">"Buget: 187.801.112,00 Lei"</td>
+                                        <td class="p-3"><span class="font-semibold text-green-700">Ridicat</span></td>
                                         <td class="p-3">Atașare raport final CNI</td>
                                     </tr>
                                 </tbody>
