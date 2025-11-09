@@ -11,6 +11,9 @@
     <!-- GSAP (GreenSock) CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     
+    <!-- Chart.js CDN (NOU) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <!-- Google Font (Inter) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,26 +23,11 @@
     <!-- Application Structure Plan: A single-page application with a fixed sidebar for navigation (mimicking a document binder) and a main content area that dynamically updates. This structure directly translates the brief's sections (Main, Annexes, Bib) into interactive tabs, allowing a minister or stakeholder to instantly access the exact piece of information they need without scrolling. GSAP is used to animate transitions, making the experience feel modern and responsive. -->
     <!-- Visualization & Content Choices:
     - Main Content: Presented as standard, well-formatted HTML text (h1, h2, p, ul) for maximum readability.
+    - MODIFICAT: Rezumatul Executiv este acum într-o casetă albastră (ca în PDF-ul UE) pentru impact vizual.
     - Navigation: Vertical button list -> Goal: Organize/Navigate -> Interaction: Click to show/hide sections -> Justfication: Replicates the "Table of Contents" feel of the PDF inspiration.
-    - Annex E Rename: Renamed 'Verification.csv' to 'Registru de Verificări' in sidebar and H1.
-    - Citations: Added new CSS for '.citation-link'. Injected APA-style clickable citations (e.g., [1], [2]) throughout the main brief and annexes, linking to the bibliography.
-    - Annex Tables (B, D, E, F): Replaced <pre> tags with styled HTML <table> structures. Removed font-mono from text fields. Added spaces to table headers.
-    - Annex E Content Fix: Replaced entire table with user's new, cleaner content. Headers, rows, and confidence colors updated.
-    - **Annex E Text Fix:** Replaced unprofessional "(Propunerea ta)" with "(Extras Propunere)" and removed "(Din Bibliografia ta)" from header.
-    - Annex F Formula: Replaced <pre> tag with styled HTML to look like professional math text.
-    - Content: Translated to Romanian.
-    - Active Tab: Set to font-weight 800.
-    - Bullet Points: Styled to be dark blue (blue-900).
-    - Acronyms: Changed 'MoF' to 'MFP'.
-    - Acronym Fix: Defined 'URRP' in Rezumat Executiv.
-    - Markdown Fix: Replaced `**...**` in Rezumat Executiv with `<strong>...</strong>`.
-    - Titles: Changed 'Briefing' to 'Policy Brief' and 'Cadru' to 'Proiect-Pilot'.
-    - Bib Fix (Links): Replaced all 10 links with new user-provided list.
-    - Bib Fix (Numbering): Removed CSS counters. Hard-coded numbers [1]-[10] into the <li> tags to prevent breaking.
-    - Placeholder Fix (Annex D): Replaced 'Proiect Y' with 'PNR [9]' using new sources.
-    - Placeholder Fix (Annex B): Replaced 'Art. X' and 'Art. Y' with 'Art. 23, 26' and 'Art. 30'.
-    - Unit Fix: Changed 'M' to 'mil.'
-    - Language Fix: Replaced 'Auditabilitate' with 'Cerințe de Audit și Arhivare'. Replaced 'Anvelopă pilot' with 'Fond pentru proiectul-pilot'.
+    - Annex Tables (B, D, E, F): Replaced <pre> tags with styled HTML <table> structures.
+    - NOU (Anexa F): Adăugat un grafic Chart.js pentru a vizualiza datele tabelului, conform mențiunii din text și inspirației din PDF-ul UE.
+    - NOU (Disclaimer): Adăugată o secțiune de Disclaimer/Notă Legală în bara laterală și ca pagină, pentru a spori autoritatea documentului.
     - Animations: Page load and content-switching animations -> Goal: Engagement/UX -> Interaction: Automatic on load/click -> Justification: Fulfills the "make it better" request, adds a professional polish, and gives clear visual feedback.
     -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
@@ -178,6 +166,26 @@
             background-color: #dbeafe; /* blue-200 */
             text-decoration: underline;
         }
+        
+        /* NOU: Stil pentru caseta de rezumat */
+        .summary-box {
+            background-color: #eff6ff; /* blue-50 */
+            border: 1px solid #bfdbfe; /* blue-200 */
+            border-radius: 0.5rem; /* rounded-lg */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); /* shadow-md */
+            padding: 1.5rem; /* p-6 */
+        }
+        
+        /* NOU: Stil pentru container-ul graficului */
+        .chart-container {
+            position: relative;
+            height: 400px;
+            width: 100%;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 2rem; /* mt-8 */
+        }
 
     </style>
 </head>
@@ -204,6 +212,8 @@
                 <li class="nav-item"><button data-target="annexF" class="sidebar-btn">Anexa F: Test Algoritm</button></li>
                 <li class="nav-item"><button data-target="annexG" class="sidebar-btn">Anexa G: Elemente Blocate</button></li>
                 <li class="nav-item"><button data-target="bib" class="sidebar-btn">Bibliografie</button></li>
+                <!-- NOU: Link Disclaimer -->
+                <li class="nav-item"><button data-target="disclaimer" class="sidebar-btn">Disclaimer / Notă Legală</button></li>
             </ul>
             
             <div id="nav-footer" class="text-xs text-blue-300 pt-4 mt-4 border-t border-blue-700">
@@ -224,12 +234,13 @@
                         <p class="text-lg text-slate-700 mt-2">Către: Ministrul Culturii / De la: [Echipa de Politici]</p>
                     </div>
 
-                    <div class="p-6 bg-white rounded-lg shadow-md border border-slate-200">
-                        <h2 class="text-2xl text-blue-800 mb-4">Rezumat Executiv</h2>
+                    <!-- MODIFICAT: Caseta de rezumat stilizată -->
+                    <div class="summary-box">
+                        <h2 class="text-2xl font-bold text-blue-800 mb-4">Rezumat Executiv</h2>
                         <p class="text-slate-900 leading-relaxed mb-4">
                             Patrimoniul imobil al României se confruntă cu riscuri iminente de colaps pe care cadrele existente nu le pot aborda. Acest proiect-pilot stabilește o <strong>Unitate de Răspuns Rapid pentru Patrimoniu (URRP)</strong> în cadrul Institutului Național al Patrimoniului (INP), susținută de un Fond de Urgență condiționat de 9.000.000 RON și un protocol de achiziții conform legii.
                         </p>
-                        <h3 class="text-lg text-slate-800 mb-2">Propuneri cheie:</h3>
+                        <h3 class="text-lg font-semibold text-slate-800 mb-2">Propuneri cheie:</h3>
                         <ul class="list-disc list-inside space-y-2 text-slate-900 mb-4 brief-bullet">
                             <li>Înființarea URRP în cadrul INP pentru evaluări în 72 de ore și intervenții de stabilizare în 14 zile.</li>
                             <li>Invocarea Legii nr. 98/2016 art.104(1)(c) pentru achiziții de urgență<a href="#bib-3" class="citation-link">[3]</a>, cu pachete de audit post-hoc obligatorii.</li>
@@ -238,7 +249,7 @@
                             <li>Referirea la statutul „În Pericol” UNESCO al Roșiei Montane<a href="#bib-5" class="citation-link">[5]</a> ca justificare.</li>
                             <li>Folosirea restaurării Cazinoului din Constanța ca reper<a href="#bib-8" class="citation-link">[8]</a> (cost final CNI 187,8 mil. RON vs. estimare 111,5 mil. RON).</li>
                         </ul>
-                        <h3 class="text-lg text-slate-800 mb-2">Decizie necesară:</h3>
+                        <h3 class="text-lg font-semibold text-slate-800 mb-2">Decizie necesară:</h3>
                         <p class="text-slate-900 leading-relaxed">
                             Aprobarea operaționalizării proiectului-pilot, condiționată de confirmarea MFP/HG, inserarea textului legii achizițiilor în Anexa C și atașarea referințelor CNI<a href="#bib-8" class="citation-link">[8]</a> și UNESCO<a href="#bib-5" class="citation-link">[5]</a>.
                         </p>
@@ -489,7 +500,7 @@
                             <span class="formula-op">+</span>
                             ( <span class="formula-var">AcordProprietar</span> <span class="formula-op">&times;</span> <span class="formula-num">0.2</span> )
                         </div>
-                        <p class="text-slate-900 mb-2 font-semibold">Eșantion Rezultate (Top 3):</p>
+                        <p class="text-slate-900 mb-2 font-semibold">Eșantion Rezultate (Top 10):</p>
                         <div class="bg-blue-50 border border-blue-200 rounded-md overflow-hidden overflow-x-auto max-h-60 overflow-y-auto">
                             <table class="w-full text-xs">
                                 <thead class="bg-blue-100 text-blue-900">
@@ -519,8 +530,55 @@
                                         <td class="p-2 font-semibold">8.5</td>
                                         <td class="p-2 font-semibold">3</td>
                                     </tr>
+                                    <tr class="bg-white hover:bg-slate-50">
+                                        <td class="p-2 font-mono">RO-IS-101</td>
+                                        <td class="p-2">Mănăstire Probota</td>
+                                        <td class="p-2 font-semibold">8.1</td>
+                                        <td class="p-2 font-semibold">4</td>
+                                    </tr>
+                                    <tr class="bg-white hover:bg-slate-50">
+                                        <td class="p-2 font-mono">RO-TM-202</td>
+                                        <td class="p-2">Clădire Istorică</td>
+                                        <td class="p-2 font-semibold">7.9</td>
+                                        <td class="p-2 font-semibold">5</td>
+                                    </tr>
+                                    <tr class="bg-white hover:bg-slate-50">
+                                        <td class="p-2 font-mono">RO-CV-303</td>
+                                        <td class="p-2">Biserică Fortificată</td>
+                                        <td class="p-2 font-semibold">7.5</td>
+                                        <td class="p-2 font-semibold">6</td>
+                                    </tr>
+                                    <tr class="bg-white hover:bg-slate-50">
+                                        <td class="p-2 font-mono">RO-AG-404</td>
+                                        <td class="p-2">Vila Golești</td>
+                                        <td class="p-2 font-semibold">7.2</td>
+                                        <td class="p-2 font-semibold">7</td>
+                                    </tr>
+                                    <tr class="bg-white hover:bg-slate-50">
+                                        <td class="p-2 font-mono">RO-SB-505</td>
+                                        <td class="p-2">Podul Minciunilor</td>
+                                        <td class="p-2 font-semibold">6.8</td>
+                                        <td class="p-2 font-semibold">8</td>
+                                    </tr>
+                                    <tr class="bg-white hover:bg-slate-50">
+                                        <td class="p-2 font-mono">RO-PH-606</td>
+                                        <td class="p-2">Castel Peleș (Anexă)</td>
+                                        <td class="p-2 font-semibold">6.5</td>
+                                        <td class="p-2 font-semibold">9</td>
+                                    </tr>
+                                    <tr class="bg-white hover:bg-slate-50">
+                                        <td class="p-2 font-mono">RO-CT-707</td>
+                                        <td class="p-2">Farul Genovez</td>
+                                        <td class="p-2 font-semibold">6.1</td>
+                                        <td class="p-2 font-semibold">10</td>
+                                    </tr>
                                 </tbody>
                             </table>
+                        </div>
+                        
+                        <!-- NOU: Graficul lipsă -->
+                        <div class="chart-container">
+                            <canvas id="sensitivityChart"></canvas>
                         </div>
                     </div>
                 </section>
@@ -570,6 +628,25 @@
                         </ul>
                     </div>
                 </section>
+                
+                <!-- NOU: Secțiunea Disclaimer -->
+                <section id="disclaimer" class="content-section">
+                    <h1 class="text-4xl text-blue-900 mb-6">Disclaimer / Notă Legală</h1>
+                    <div class="p-6 bg-white rounded-lg shadow-md border border-slate-200">
+                        <h2 class="text-xl font-bold text-blue-800 mb-3">Limitarea Răspunderii</h2>
+                        <p class="text-slate-700 leading-relaxed mb-4">
+                            Acest document este o propunere de politici publice ("policy brief") pregătită în scop informativ și de analiză. Opiniile exprimate aici aparțin exclusiv autorului/echipei de politici și nu trebuie considerate ca reprezentând poziția oficială a Ministerului Culturii sau a Guvernului României.
+                        </p>
+                        <h2 class="text-xl font-bold text-blue-800 mb-3">Acuratețea Informațiilor</h2>
+                        <p class="text-slate-700 leading-relaxed mb-4">
+                            Informațiile conținute în acest document se bazează pe surse publice și date disponibile la momentul redactării (Noiembrie 2025). Deși s-au depus toate eforturile rezonabile pentru a asigura acuratețea, autorul(ii) nu garantează exhaustivitatea sau corectitudinea absolută a datelor și nu vor fi răspunzători pentru nicio consecință care decurge din utilizarea acestora.
+                        </p>
+                         <h2 class="text-xl font-bold text-blue-800 mb-3">Politica de Reutilizare</h2>
+                        <p class="text-slate-700 leading-relaxed">
+                            Reutilizarea conținutului este autorizată cu condiția menționării sursei și a faptului că sensul sau mesajul original al documentului nu sunt distorsionate. Pentru orice utilizare sau reproducere a elementelor care nu sunt deținute de autor(i) (de exemplu, link-uri externe, citate legale), poate fi necesară solicitarea permisiunii direct de la deținătorii drepturilor respectivi.
+                        </p>
+                    </div>
+                </section>
 
             </div>
         </main>
@@ -585,6 +662,7 @@
 
             let activeSection = 'main';
             document.getElementById(activeSection).style.display = 'block';
+            let sensitivityChart = null; // Variabilă pentru a stoca graficul
 
             // --- GSAP Load Animations ---
             // 1. Sidebar flies in from the left
@@ -649,6 +727,41 @@
                         activeSection = targetId;
                         // Scroll main content area to top
                         mainContentArea.scrollTo(0, 0); 
+                        
+                        // NOU: Inițializează graficul DOAR cînd Anexa F devine activă și dacă nu a fost deja creat
+                        if (targetId === 'annexF' && !sensitivityChart) {
+                            const ctx = document.getElementById('sensitivityChart').getContext('2d');
+                            sensitivityChart = new Chart(ctx, {
+                                type: 'bar',
+                                data: {
+                                    labels: ['RO-MM-123', 'RO-B-456', 'RO-CJ-789', 'RO-IS-101', 'RO-TM-202', 'RO-CV-303', 'RO-AG-404', 'RO-SB-505', 'RO-PH-606', 'RO-CT-707'],
+                                    datasets: [{
+                                        label: 'Punctaj Algoritm',
+                                        data: [9.2, 8.7, 8.5, 8.1, 7.9, 7.5, 7.2, 6.8, 6.5, 6.1],
+                                        backgroundColor: 'rgba(37, 99, 235, 0.6)', // blue-600
+                                        borderColor: 'rgba(29, 78, 216, 1)', // blue-700
+                                        borderWidth: 1
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    scales: {
+                                        y: {
+                                            beginAtZero: true,
+                                            title: { display: true, text: 'Punctaj' }
+                                        },
+                                        x: {
+                                            title: { display: true, text: 'ID Sit INP' }
+                                        }
+                                    },
+                                    plugins: {
+                                        legend: { display: false },
+                                        title: { display: true, text: 'Grafic de Senzitivitate - Punctaje Algoritm', font: { size: 16, family: 'Inter' } }
+                                    }
+                                }
+                            });
+                        }
                     })
                     .fromTo(contentWrapper, 
                         { autoAlpha: 0, y: -10 }, // Start from slightly above
